@@ -57,7 +57,7 @@ section{
 }
 
 /* Features grid */
-.feature{
+.features{
     list-style: none;
     padding: 0;
     display: grid;
