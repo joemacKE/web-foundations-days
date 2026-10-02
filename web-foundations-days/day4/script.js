@@ -4,8 +4,8 @@ const wordCount = document.getElementById("word-count");
 const clearBtn = document.getElementById("clear-btn");
 const themeToggle = document.getElementById("theme-toggle");
 
-const DRAFT_KEY = "draft";
-const THEME_KEY = "theme";
+const DRAFT_KEY = "quicknotesDraft";
+const THEME_KEY = "quicknotesTheme";
 
 function updateCounts() {
     const text = noteText.value;
@@ -29,25 +29,22 @@ function updateCounts() {
     }
 }
 
-function clearNote() {
+function clearEverything() {
     noteText.value = "";
-
     localStorage.removeItem(DRAFT_KEY);
-
     updateCounts();
 }
 
 noteText.addEventListener("input", () => {
     updateCounts();
-
     localStorage.setItem(DRAFT_KEY, noteText.value);
 });
 
-clearBtn.addEventListener("click", clearNote);
+clearBtn.addEventListener("click", clearEverything);
 
 noteText.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-        clearNote();
+        clearEverything();
     }
 });
 
