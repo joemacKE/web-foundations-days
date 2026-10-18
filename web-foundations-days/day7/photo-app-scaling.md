@@ -124,10 +124,71 @@ The database should store metadata, such as the photo ID, owner, caption, upload
 The following diagram shows the main components and how requests and photo files move through SnapShare.
 
   
-## 6. Esali Draw Image
+## 6. Escali Draw Image
+
+https://excalidraw.com/#json=w0dZ7fz0hoDaygCt2s3e1,Yptx4no40zeNc51OM52k8g
 
 
+                    USERS
+                          |
+             +------------+------------+
+             |                         |
+       Feed / API requests         Photo requests
+             |                         |
+             v                         v
+      +----------------+        +---------------+
+      | Load Balancer  |        |      CDN      |
+      +----------------+        +---------------+
+             |                         |
+             v                         |
+      +----------------+               |
+      |  App Servers   |               |
+      | (API services) |               |
+      +----------------+               |
+          |       |                    |
+          |       +--------------------+
+          |                Photo URLs / object keys
+          |
+     +----+----------+---------------------+
+     |               |                     |
+     v               v                     v
++-----------+  +-------------+     +----------------+
+|   Cache   |  |  Database   |     | Object Storage |
+|           |  |  Primary DB |     | Original photos|
++-----------+  +-------------+     | and thumbnails |
+                      |             +----------------+
+                      |
+                      v
+               +--------------+
+               | Read Replica |
+               +--------------+
 
+PHOTO UPLOAD PROCESS:
+
+ App Servers
+      |
+      v
++----------------+
+| Object Storage |
+| Original Photo |
++----------------+
+      |
+      v
++----------------+
+| Upload Queue   |
++----------------+
+      |
+      v
++----------------+
+| Thumbnail      |
+| Worker         |
++----------------+
+      |
+      v
++----------------+
+| Object Storage |
+| Thumbnail      |
++----------------+
 
 
 
