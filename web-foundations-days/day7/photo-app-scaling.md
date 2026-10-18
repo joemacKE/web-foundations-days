@@ -4,16 +4,16 @@
 
 Before designing the architecture, I will estimate the expected traffic and storage requirements using the following assumptions:
 
-* The app has 10 million registered users.
-* 10% of registered users are active each day.
-* Each daily active user uploads 1 photo per day.
-* Each daily active user views 50 feed pages per day.
-* Each original photo is approximately 2 MB.
-* Each photo also has a thumbnail of approximately 50 KB.
-* One day has 86,400 seconds, and one year has 365 days.
-* I will use decimal storage units: 1 MB = 1,000 KB, 1 GB = 1,000 MB, and 1 TB = 1,000 GB.
-* Peak traffic is estimated to be 5 times the average traffic.
-* Storage estimates assume photos are retained for a full year, without deleting old photos. They exclude backups, replication, and additional storage overhead.
+- The app has 10 million registered users.
+- 10% of registered users are active each day.
+- Each daily active user uploads 1 photo per day.
+- Each daily active user views 50 feed pages per day.
+- Each original photo is approximately 2 MB.
+- Each photo also has a thumbnail of approximately 50 KB.
+- One day has 86,400 seconds, and one year has 365 days.
+- I will use decimal storage units: 1 MB = 1,000 KB, 1 GB = 1,000 MB, and 1 TB = 1,000 GB.
+- Peak traffic is estimated to be 5 times the average traffic.
+- Storage estimates assume photos are retained for a full year, without deleting old photos. They exclude backups, replication, and additional storage overhead.
 
 ### Daily active users (DAU)
 
@@ -69,8 +69,8 @@ These estimates count feed-page requests, not individual photos displayed on eac
 
 Each uploaded photo produces two files:
 
-* Original photo: 2 MB
-* Thumbnail: 50 KB = 0.05 MB
+- Original photo: 2 MB
+- Thumbnail: 50 KB = 0.05 MB
 
 Total storage per uploaded photo:
 
@@ -90,12 +90,12 @@ The annual estimate includes original photos and thumbnails. It does not include
 
 ### Summary of Estimates
 
-| Metric                   |   Average | Peak (5×) |
-| ------------------------ | --------: | --------: |
-| Daily active users       | 1,000,000 |         — |
-| Photo uploads per second |      11.6 |        58 |
-| Feed views per second    |       579 |     2,894 |
-| Photo storage per year   | 748.25 TB |         — |
+| Metric | Average | Peak (5×) |
+|---|---:|---:|
+| Daily active users | 1,000,000 | — |
+| Photo uploads per second | 11.6 | 58 |
+| Feed views per second | 579 | 2,894 |
+| Photo storage per year | 748.25 TB | — |
 
 ## 3. Read-Heavy or Write-Heavy?
 
@@ -123,13 +123,8 @@ The database should store metadata, such as the photo ID, owner, caption, upload
 
 The following diagram shows the main components and how requests and photo files move through SnapShare.
 
-  
-## 6. Escali Draw Image
-
-https://excalidraw.com/#json=w0dZ7fz0hoDaygCt2s3e1,Yptx4no40zeNc51OM52k8g
-
-
-                    USERS
+```text
+                        USERS
                           |
              +------------+------------+
              |                         |
@@ -189,22 +184,21 @@ PHOTO UPLOAD PROCESS:
 | Object Storage |
 | Thumbnail      |
 +----------------+
-
-
+```
 
 The database primary and read replica are shown separately because writes go to the primary, while suitable read queries can be sent to the replica. The cache and CDN serve different purposes: the cache stores frequently accessed application data, while the CDN delivers image files from locations closer to users.
 
 ## 6. What Each Component Does
 
-* **Load balancer:** Distributes incoming API requests across available app servers so that one server does not receive all the traffic.
-* **App servers:** Handle authentication, photo uploads, captions, follow relationships, feed generation, and other application logic.
-* **Cache:** Stores frequently requested data, such as feed results and profile information, to reduce database queries and improve response times.
-* **Database primary:** Stores authoritative application data and processes writes, including photo metadata, users, captions, and follow relationships.
-* **Database read replica:** Copies data from the primary and handles suitable read queries, reducing read pressure on the primary database.
-* **Object storage:** Stores original photos and generated thumbnails independently of the database.
-* **Upload queue:** Holds thumbnail-generation jobs so that image processing can happen asynchronously rather than delaying the upload response.
-* **Thumbnail worker:** Retrieves queued jobs, creates smaller thumbnail images, and saves them to object storage.
-* **CDN:** Caches and delivers original photos and thumbnails from geographically distributed locations, reducing latency and requests reaching the origin storage.
+- **Load balancer:** Distributes incoming API requests across available app servers so that one server does not receive all the traffic.
+- **App servers:** Handle authentication, photo uploads, captions, follow relationships, feed generation, and other application logic.
+- **Cache:** Stores frequently requested data, such as feed results and profile information, to reduce database queries and improve response times.
+- **Database primary:** Stores authoritative application data and processes writes, including photo metadata, users, captions, and follow relationships.
+- **Database read replica:** Copies data from the primary and handles suitable read queries, reducing read pressure on the primary database.
+- **Object storage:** Stores original photos and generated thumbnails independently of the database.
+- **Upload queue:** Holds thumbnail-generation jobs so that image processing can happen asynchronously rather than delaying the upload response.
+- **Thumbnail worker:** Retrieves queued jobs, creates smaller thumbnail images, and saves them to object storage.
+- **CDN:** Caches and delivers original photos and thumbnails from geographically distributed locations, reducing latency and requests reaching the origin storage.
 
 ## 7. Step-by-Step Photo Upload Flow
 
